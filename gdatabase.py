@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 # sqlite3 database connection
@@ -11,7 +12,18 @@ def dict_factory(cursor, row):
 
 def init(monsters):
 	global conn
+
+	new_database = not os.path.exists("gauntlet.db")
 	conn = sqlite3.connect("gauntlet.db")
+
+	# If no database, create tables and exit
+	if new_database:
+		print("No database file exists. Creating it now. Add some monsters in the database and try again.")
+		conn.execute("CREATE TABLE players (name TEXT PRIMARY KEY, sex TEXT, level INTEGER, exp INTEGER, gold INTEGER, land INTEGER, m_servants INTEGER, f_servants INTEGER)")
+		conn.execute("CREATE TABLE armies (player TEXT, monster TEXT, qty INTEGER)")
+		conn.execute("CREATE TABLE monsters (name TEXT PRIMARY KEY, plural TEXT, type TEXT, level INTEGER, cost INTEGER, attack INTEGER, defense INTEGER, min_dam INTEGER, max_dam INTEGER, health INTEGER, speed INTEGER)")
+		exit(1)
+
 	conn.row_factory = dict_factory
 
 	# Read monsters from database
